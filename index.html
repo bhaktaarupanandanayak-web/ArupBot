@@ -5,527 +5,479 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Arup AI</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script>
-tailwind.config = {
-  darkMode: 'class',
-  theme: { extend: { colors: { gemini: { light: '#f0f4f9', dark: '#131314', userLight: '#e3e3e3', userDark: '#1e1f20' } } } }
-}
-</script>
+<script>tailwind.config={darkMode:'class',theme:{extend:{colors:{gemini:{light:'#f0f4f9',dark:'#131314',userLight:'#e3e3e3',userDark:'#1e1f20'}}}}}</script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
 <style>
-body { -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
-#loading { position: fixed; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #fff; color: #1f2937; z-index: 9999; font-family: sans-serif; }
-.dark #loading { background: #131314; color: #f3f4f6; }
-.spinner { width: 40px; height: 40px; border: 4px solid rgba(0,0,0,.1); border-left-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 1rem; }
-.dark .spinner { border: 4px solid rgba(255,255,255,.1); border-left-color: #60a5fa; }
-@keyframes spin { to { transform: rotate(360deg); } }
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-.dark ::-webkit-scrollbar-thumb { background: #475569; }
-.prose p { margin-bottom: .75em; }
-.prose p:last-child { margin-bottom: 0; }
-.prose pre { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: .5rem; overflow-x: auto; margin: .5rem 0; font-size: .875rem; }
-.prose code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; background: rgba(150,150,150,.2); padding: .15rem .3rem; border-radius: .25rem; font-size: .875em; }
-.prose pre code { background: transparent; padding: 0; }
-.prose ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: .5rem; }
-.prose ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: .5rem; }
-.prose a { color: #3b82f6; text-decoration: underline; }
-.cursor-blink::after { content: '▋'; animation: blink 1s step-start infinite; color: #3b82f6; margin-left: 2px; }
-@keyframes blink { 50% { opacity: 0; } }
-.sidebar-slide { transition: transform .3s ease-in-out; }
+body{-webkit-tap-highlight-color:transparent}
+#loading{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:#fff;color:#1f2937;z-index:9999;font-family:sans-serif}
+.dark #loading{background:#131314;color:#f3f4f6}
+.spinner{width:40px;height:40px;border:4px solid rgba(0,0,0,.1);border-left-color:#3b82f6;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}.dark ::-webkit-scrollbar-thumb{background:#475569}
+.prose p{margin-bottom:.75em}.prose p:last-child{margin-bottom:0}
+.prose pre{background:#1e1e1e;color:#d4d4d4;padding:1rem;border-radius:0 0 .5rem .5rem;overflow-x:auto;margin:0 0 .5rem;font-size:.875rem}
+.prose code{font-family:ui-monospace,Menlo,Consolas,monospace;background:rgba(150,150,150,.2);padding:.15rem .3rem;border-radius:.25rem;font-size:.875em}
+.prose pre code{background:transparent;padding:0}
+.prose ul{list-style:disc;padding-left:1.5rem;margin-bottom:.5rem}.prose ol{list-style:decimal;padding-left:1.5rem;margin-bottom:.5rem}
+.prose a{color:#3b82f6;text-decoration:underline}
+.prose table{border-collapse:collapse;margin:.5rem 0}.prose th,.prose td{border:1px solid rgba(150,150,150,.4);padding:.3rem .6rem}
+.prose blockquote{border-left:3px solid #94a3b8;padding-left:.8rem;opacity:.85}
+.prose h1,.prose h2,.prose h3{font-weight:600;margin:.8em 0 .4em}.prose h1{font-size:1.4em}.prose h2{font-size:1.2em}
+.codehead{display:flex;justify-content:space-between;align-items:center;background:#2d2d2d;color:#aaa;font-size:.75rem;padding:.35rem .75rem;border-radius:.5rem .5rem 0 0;margin-top:.5rem}
+.codehead button{margin-left:.75rem;color:#ddd}.codehead button:hover{color:#60a5fa}
+.cursor-blink::after{content:'▋';animation:blink 1s step-start infinite;color:#3b82f6;margin-left:2px}
+@keyframes blink{50%{opacity:0}}
+.sidebar-slide{transition:transform .3s ease-in-out}
+.ab{font-size:.75rem;padding:.2rem .5rem;border-radius:.5rem;opacity:.7}.ab:hover{background:rgba(150,150,150,.25);opacity:1}
+details.think{font-size:.85rem;opacity:.75;margin-bottom:.5rem;border-left:2px solid #94a3b8;padding-left:.6rem}
 </style>
 </head>
 <body class="bg-white dark:bg-gemini-dark text-gray-800 dark:text-gray-100 min-h-[100dvh] flex m-0 p-0 antialiased">
-
-<div id="loading"><div class="spinner"></div><div class="text-xl font-semibold tracking-wide">Arup AI</div></div>
+<div id="loading"><div class="spinner"></div><div class="text-xl font-semibold">Arup AI</div></div>
 
 <div id="app" class="hidden w-full flex min-h-[100dvh] relative">
-  <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden" onclick="toggleSidebar()"></div>
+<div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden" onclick="toggleSidebar()"></div>
 
-  <aside id="sidebar" class="sidebar-slide fixed md:sticky top-0 left-0 h-[100dvh] w-72 bg-gemini-light dark:bg-[#1e1f20] flex flex-col z-50 transform -translate-x-full md:translate-x-0 border-r border-gray-200 dark:border-gray-800 shrink-0">
-    <div class="p-4 flex items-center justify-between">
-      <button onclick="toggleSidebar()" class="md:hidden p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-      </button>
-    </div>
-    <div class="px-4 pb-4">
-      <button onclick="createNewChat()" class="w-full flex items-center gap-2 bg-white dark:bg-[#131314] hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full py-3 px-4 shadow-sm transition-colors text-sm font-medium">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-        New chat
-      </button>
-    </div>
-    <div class="flex-1 overflow-y-auto px-3 py-2" id="chat-history-list"></div>
-    <div class="p-4 border-t border-gray-200 dark:border-gray-800">
-      <button onclick="openSettings()" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm font-medium">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-        Settings
-      </button>
-    </div>
-  </aside>
+<aside id="sidebar" class="sidebar-slide fixed md:sticky top-0 left-0 h-[100dvh] w-72 bg-gemini-light dark:bg-[#1e1f20] flex flex-col z-50 -translate-x-full md:translate-x-0 border-r border-gray-200 dark:border-gray-800 shrink-0">
+  <div class="p-4 flex items-center justify-between md:hidden"><span class="font-medium">Menu</span><button onclick="toggleSidebar()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">✕</button></div>
+  <div class="p-4 pb-2"><button onclick="createNewChat()" class="w-full bg-white dark:bg-[#131314] hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full py-3 px-4 shadow-sm text-sm font-medium">＋ New chat <span class="text-xs opacity-50">(Ctrl+K)</span></button></div>
+  <div class="px-4 pb-2"><input id="chat-search" placeholder="Search chats..." class="w-full bg-white dark:bg-[#131314] border border-gray-200 dark:border-gray-700 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"></div>
+  <div class="flex-1 overflow-y-auto px-3 py-2" id="chat-history-list"></div>
+  <div class="p-4 border-t border-gray-200 dark:border-gray-800"><button onclick="openSettings()" class="w-full text-left p-3 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 text-sm font-medium">⚙ Settings</button></div>
+</aside>
 
-  <main class="flex-1 flex flex-col min-w-0 min-h-[100dvh] relative">
-    <header class="sticky top-0 z-30 bg-white/80 dark:bg-gemini-dark/80 backdrop-blur-md px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <button onclick="toggleSidebar()" class="md:hidden p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-        </button>
-        <h1 class="text-xl font-medium tracking-tight">Arup AI</h1>
-      </div>
-      <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" title="Toggle Dark Mode">
-        <svg id="theme-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"></svg>
-      </button>
-    </header>
-
-    <div id="chat-container" class="flex-1 overflow-y-auto px-4 py-6 md:px-8 max-w-4xl w-full mx-auto space-y-6"></div>
-
-    <div class="sticky bottom-0 w-full bg-gradient-to-t from-white via-white to-transparent dark:from-gemini-dark dark:via-gemini-dark pt-6 pb-4 px-4 md:px-8 z-30">
-      <div class="max-w-4xl mx-auto relative">
-        <form id="chat-form" class="relative flex items-end bg-gemini-light dark:bg-gemini-userDark rounded-3xl border border-gray-200 dark:border-gray-700 focus-within:ring-1 focus-within:ring-blue-500 overflow-hidden px-2 pb-2 pt-2 shadow-sm">
-          <textarea id="message-input" rows="1" class="w-full max-h-48 bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 border-0 focus:ring-0 resize-none py-3 px-4 m-0 text-base" placeholder="Ask Arup AI anything..."></textarea>
-          <button type="submit" id="send-btn" class="mb-1 mr-1 p-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0" disabled>
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-          </button>
-        </form>
-        <div class="text-center mt-2 text-xs text-gray-500 dark:text-gray-400">AI can make mistakes. Consider verifying important information.</div>
-      </div>
+<main class="flex-1 flex flex-col min-w-0 min-h-[100dvh] relative">
+  <header class="sticky top-0 z-30 bg-white/80 dark:bg-gemini-dark/80 backdrop-blur-md px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <button onclick="toggleSidebar()" class="md:hidden p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">☰</button>
+      <h1 class="text-xl font-medium tracking-tight">Arup AI</h1>
+      <span id="temp-badge" class="hidden text-xs bg-purple-600 text-white rounded-full px-2 py-0.5">Private</span>
     </div>
-  </main>
+    <div class="flex items-center gap-1 text-sm">
+      <button onclick="toggleTemp()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800" title="Private chat (not saved)">🕶</button>
+      <button onclick="exportChat()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800" title="Export chat as Markdown">⬇</button>
+      <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800" title="Toggle theme" id="theme-btn">🌙</button>
+    </div>
+  </header>
+
+  <div id="chat-container" class="flex-1 overflow-y-auto px-4 py-6 md:px-8 max-w-4xl w-full mx-auto space-y-6"></div>
+  <button id="scroll-btn" onclick="scrollToBottom(true)" class="hidden fixed bottom-32 right-6 z-30 w-10 h-10 rounded-full bg-white dark:bg-gemini-userDark border border-gray-300 dark:border-gray-600 shadow">↓</button>
+
+  <div class="sticky bottom-0 w-full bg-gradient-to-t from-white via-white to-transparent dark:from-gemini-dark dark:via-gemini-dark pt-6 pb-4 px-4 md:px-8 z-30">
+    <div class="max-w-4xl mx-auto">
+      <div id="attach-preview" class="flex flex-wrap gap-2 mb-2"></div>
+      <form id="chat-form" class="flex items-end bg-gemini-light dark:bg-gemini-userDark rounded-3xl border border-gray-200 dark:border-gray-700 focus-within:ring-1 focus-within:ring-blue-500 px-2 py-2 shadow-sm">
+        <input type="file" id="file-input" class="hidden" multiple accept="image/*,.txt,.md,.csv,.json,.js,.ts,.py,.html,.css,.java,.c,.cpp,.xml,.yaml,.yml,.log">
+        <button type="button" onclick="document.getElementById('file-input').click()" class="mb-1 p-3 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 shrink-0" title="Attach files / images">📎</button>
+        <textarea id="message-input" rows="1" class="w-full max-h-48 bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-500 border-0 focus:ring-0 focus:outline-none resize-none py-3 px-2 m-0 text-base" placeholder="Ask Arup AI anything..."></textarea>
+        <button type="submit" id="send-btn" class="mb-1 mr-1 p-3 w-11 h-11 rounded-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed shrink-0" disabled>➤</button>
+      </form>
+      <div class="text-center mt-2 text-xs text-gray-500 dark:text-gray-400">AI can make mistakes. Consider verifying important information.</div>
+    </div>
+  </div>
+</main>
+
+<aside id="artifact" class="hidden fixed md:static inset-0 md:inset-auto z-[60] md:z-auto w-full md:w-[45%] md:max-w-2xl bg-white dark:bg-[#1e1f20] border-l border-gray-200 dark:border-gray-800 flex-col h-[100dvh] md:sticky md:top-0">
+  <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800">
+    <span class="font-medium text-sm">Artifact preview</span>
+    <div class="flex gap-2"><button class="ab" onclick="copyText(artifactCode)">Copy code</button><button class="ab" onclick="closeArtifact()">✕ Close</button></div>
+  </div>
+  <iframe id="artifact-frame" sandbox="allow-scripts" class="flex-1 w-full bg-white"></iframe>
+</aside>
 </div>
 
+<div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-sm px-4 py-2 rounded-full shadow-lg z-[200] hidden"></div>
+
 <div id="settings-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-  <div class="bg-white dark:bg-[#1e1f20] rounded-2xl w-full max-w-md shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
-    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
-      <h2 class="text-lg font-semibold">Settings</h2>
-      <button onclick="closeSettings()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-      </button>
-    </div>
-    <div class="p-6 space-y-4">
-      <div>
-        <label class="block text-sm font-medium mb-1">OpenRouter API Key <span class="text-red-500">*</span></label>
-        <input type="password" id="setting-api-key" placeholder="sk-or-v1-..." class="w-full bg-gray-50 dark:bg-[#131314] border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+  <div class="bg-white dark:bg-[#1e1f20] rounded-2xl w-full max-w-md shadow-2xl border border-gray-200 dark:border-gray-700 max-h-[90vh] flex flex-col">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex justify-between"><h2 class="text-lg font-semibold">Settings</h2><button onclick="closeSettings()">✕</button></div>
+    <div class="p-6 space-y-4 overflow-y-auto text-sm">
+      <div><label class="block font-medium mb-1">OpenRouter API Key <span class="text-red-500">*</span></label><input type="password" id="s-key" placeholder="sk-or-v1-..." class="inp"></div>
+      <div><label class="block font-medium mb-1">Model</label><input id="s-model" placeholder="deepseek/deepseek-r1:free" class="inp"></div>
+      <div><label class="block font-medium mb-1">System Prompt</label><textarea id="s-sys" rows="3" class="inp resize-none"></textarea></div>
+      <div><label class="block font-medium mb-1">Response style</label><select id="s-style" class="inp"><option value="normal">Normal</option><option value="concise">Concise</option><option value="explanatory">Explanatory</option><option value="formal">Formal</option></select></div>
+      <div><label class="block font-medium mb-1">Temperature: <span id="s-temp-v"></span></label><input type="range" id="s-temp" min="0" max="2" step="0.1" class="w-full" oninput="document.getElementById('s-temp-v').textContent=this.value"></div>
+      <div><label class="block font-medium mb-1">Max tokens (0 = default)</label><input type="number" id="s-max" min="0" class="inp"></div>
+      <div class="flex gap-3">
+        <div class="flex-1"><label class="block font-medium mb-1">Theme</label><select id="s-theme" class="inp"><option value="dark">Dark</option><option value="light">Light</option><option value="system">System</option></select></div>
+        <div class="flex-1"><label class="block font-medium mb-1">Font size</label><select id="s-font" class="inp"><option value="14">Small</option><option value="16">Medium</option><option value="18">Large</option></select></div>
       </div>
-      <div>
-        <label class="block text-sm font-medium mb-1">Model</label>
-        <input type="text" id="setting-model" placeholder="deepseek/deepseek-r1:free" class="w-full bg-gray-50 dark:bg-[#131314] border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-      </div>
-      <div>
-        <label class="block text-sm font-medium mb-1">System Prompt (Optional)</label>
-        <textarea id="setting-system" rows="3" placeholder="You are Arup AI, a helpful assistant..." class="w-full bg-gray-50 dark:bg-[#131314] border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"></textarea>
-      </div>
+      <button onclick="clearAll()" class="text-red-500 hover:underline">Delete all chats</button>
     </div>
     <div class="px-6 py-4 bg-gray-50 dark:bg-[#131314] border-t border-gray-200 dark:border-gray-800 flex justify-end gap-3">
-      <button onclick="closeSettings()" class="px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">Cancel</button>
-      <button onclick="saveSettings()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors">Save</button>
+      <button onclick="closeSettings()" class="px-4 py-2 rounded-lg text-sm hover:bg-gray-200 dark:hover:bg-gray-700">Cancel</button>
+      <button onclick="saveSettings()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm">Save</button>
     </div>
   </div>
 </div>
+<style>.inp{width:100%;background:rgba(150,150,150,.08);border:1px solid rgba(150,150,150,.4);border-radius:.5rem;padding:.5rem .75rem}.inp:focus{outline:2px solid #3b82f6}</style>
 
 <script>
-// --- State ---
-let state = {
-  chats: [],
-  currentChatId: null,
-  settings: { apiKey: '', model: 'deepseek/deepseek-r1:free', systemPrompt: 'You are Arup AI, a highly intelligent and helpful assistant.', theme: 'dark' },
-  isGenerating: false
-};
+const DEF_MODEL='deepseek/deepseek-r1:free';
+const STYLES={normal:'',concise:'Keep responses short and to the point.',explanatory:'Explain thoroughly, step by step, in an educational tone.',formal:'Use a formal, professional tone.'};
+const SUGGESTIONS=['✍ Write an email','💻 Explain this code','🧠 Brainstorm ideas','📚 Summarize a topic'];
+let state={chats:[],currentChatId:null,isGenerating:false,controller:null,attach:[],
+  settings:{apiKey:'',model:DEF_MODEL,systemPrompt:'You are Arup AI, a highly intelligent and helpful assistant.',style:'normal',temperature:0.7,maxTokens:0,theme:'dark',fontSize:16}};
+let artifactCode='';
+const $=id=>document.getElementById(id);
+const cur=()=>state.chats.find(c=>c.id===state.currentChatId);
 
-// --- Init ---
-document.addEventListener("DOMContentLoaded", () => {
-  try {
-    loadState();
-    applyTheme();
-    renderSidebar();
-    renderCurrentChat();
-    setupTextareaAutoResize();
-    setupFormSubmit();
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('app').classList.remove('hidden');
-  } catch (error) {
-    console.error("Initialization failed:", error);
-    document.getElementById('loading').innerHTML = `<div class="text-red-500 p-4 text-center">Failed to load app.<br>${error.message}</div>`;
-  }
+// ---------- Init ----------
+document.addEventListener('DOMContentLoaded',()=>{
+  try{
+    loadState();applyTheme();renderSidebar();renderCurrentChat();setupInput();
+    $('chat-container').addEventListener('scroll',()=>{const c=$('chat-container');$('scroll-btn').classList.toggle('hidden',c.scrollHeight-c.scrollTop-c.clientHeight<200)});
+    $('chat-search').addEventListener('input',renderSidebar);
+    $('file-input').addEventListener('change',e=>{handleFiles(e.target.files);e.target.value=''});
+    document.addEventListener('keydown',e=>{
+      if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();createNewChat()}
+      if(e.key==='Escape'){closeSettings();closeArtifact()}
+    });
+    document.addEventListener('paste',e=>{const fs=[...(e.clipboardData?.files||[])];if(fs.length)handleFiles(fs)});
+    document.addEventListener('dragover',e=>e.preventDefault());
+    document.addEventListener('drop',e=>{e.preventDefault();handleFiles(e.dataTransfer.files)});
+    matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme);
+    $('loading').style.display='none';$('app').classList.remove('hidden');
+  }catch(err){console.error(err);$('loading').innerHTML=`<div class="text-red-500 p-4 text-center">Failed to load app.<br>${err.message}</div>`}
 });
 
-// --- Core ---
-function loadState() {
-  const s = localStorage.getItem('arup_settings');
-  if (s) state.settings = { ...state.settings, ...JSON.parse(s) };
-  const c = localStorage.getItem('arup_chats');
-  if (c) state.chats = JSON.parse(c);
-  const id = localStorage.getItem('arup_currentChatId');
-  if (id && state.chats.some(x => x.id === id)) state.currentChatId = id;
-  else if (state.chats.length > 0) state.currentChatId = state.chats[0].id;
+function loadState(){
+  try{
+    const s=localStorage.getItem('arup_settings');if(s)state.settings={...state.settings,...JSON.parse(s)};
+    const c=localStorage.getItem('arup_chats');if(c)state.chats=JSON.parse(c);
+  }catch(e){}
+  const id=localStorage.getItem('arup_currentChatId');
+  if(id&&state.chats.some(c=>c.id===id))state.currentChatId=id;
+  else if(state.chats.length)state.currentChatId=state.chats[0].id;
   else createNewChat(false);
 }
+function saveState(){
+  try{
+    localStorage.setItem('arup_settings',JSON.stringify(state.settings));
+    localStorage.setItem('arup_chats',JSON.stringify(state.chats.filter(c=>!c.temp)));
+    localStorage.setItem('arup_currentChatId',state.currentChatId);
+  }catch(e){toast('Storage full – delete old chats or remove big attachments')}
+}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.remove('hidden');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.add('hidden'),2200)}
+function copyText(t){navigator.clipboard.writeText(t).then(()=>toast('Copied'),()=>toast('Copy failed'))}
 
-function saveState() {
-  localStorage.setItem('arup_settings', JSON.stringify(state.settings));
-  localStorage.setItem('arup_chats', JSON.stringify(state.chats));
-  localStorage.setItem('arup_currentChatId', state.currentChatId);
+// ---------- Chats ----------
+function createNewChat(render=true){
+  if(state.isGenerating)return;
+  const c={id:'chat_'+Date.now(),title:'New Chat',messages:[],createdAt:Date.now(),pinned:false,temp:false};
+  state.chats.unshift(c);state.currentChatId=c.id;saveState();
+  if(render){renderSidebar();renderCurrentChat();if(innerWidth<768&&!$('sidebar').classList.contains('-translate-x-full'))toggleSidebar()}
+}
+function selectChat(id){
+  if(state.isGenerating)return;
+  state.currentChatId=id;saveState();renderSidebar();renderCurrentChat();
+  if(innerWidth<768)toggleSidebar();
+}
+function deleteChat(id,e){
+  e.stopPropagation();if(state.isGenerating||!confirm('Delete this chat?'))return;
+  state.chats=state.chats.filter(c=>c.id!==id);
+  if(state.currentChatId===id){state.currentChatId=state.chats[0]?.id||null;if(!state.currentChatId)createNewChat(false)}
+  saveState();renderSidebar();renderCurrentChat();
+}
+function renameChat(id,e){e.stopPropagation();const c=state.chats.find(x=>x.id===id);const t=prompt('Rename chat',c.title);if(t&&t.trim()){c.title=t.trim();saveState();renderSidebar()}}
+function pinChat(id,e){e.stopPropagation();const c=state.chats.find(x=>x.id===id);c.pinned=!c.pinned;saveState();renderSidebar()}
+function clearAll(){if(!confirm('Delete ALL chats?'))return;state.chats=[];createNewChat(false);saveState();closeSettings();renderSidebar();renderCurrentChat()}
+function toggleTemp(){
+  const c=cur();if(!c||state.isGenerating)return;
+  if(c.messages.length){toast('Start a new chat first, then enable Private');return}
+  c.temp=!c.temp;renderCurrentChat();toast(c.temp?'Private chat: won\'t be saved':'Private chat off');
+}
+function exportChat(){
+  const c=cur();if(!c||!c.messages.length){toast('Nothing to export');return}
+  const md=`# ${c.title}\n\n`+c.messages.map(m=>`**${m.role==='user'?'You':'Arup AI'}:**\n\n${m.content}`).join('\n\n---\n\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([md],{type:'text/markdown'}));
+  a.download=c.title.replace(/[^\w\- ]+/g,'').trim()+'.md';a.click();URL.revokeObjectURL(a.href);
 }
 
-function createNewChat(render = true) {
-  if (state.isGenerating) return;
-  const newChat = { id: 'chat_' + Date.now(), title: 'New Chat', messages: [], createdAt: Date.now() };
-  state.chats.unshift(newChat);
-  state.currentChatId = newChat.id;
-  saveState();
-  if (render) {
-    renderSidebar();
-    renderCurrentChat();
-    if (window.innerWidth < 768) toggleSidebar();
-  }
+// ---------- Rendering ----------
+function renderSidebar(){
+  const list=$('chat-history-list');list.innerHTML='';
+  const q=$('chat-search').value.trim().toLowerCase();
+  const items=state.chats.filter(c=>!q||c.title.toLowerCase().includes(q)||c.messages.some(m=>m.content.toLowerCase().includes(q)));
+  const add=(label,arr)=>{
+    if(!arr.length)return;
+    const h=document.createElement('div');h.className='text-xs uppercase opacity-50 px-3 pt-3 pb-1';h.textContent=label;list.appendChild(h);
+    arr.forEach(chat=>{
+      const active=chat.id===state.currentChatId;
+      const d=document.createElement('div');
+      d.className=`group flex items-center justify-between p-3 rounded-xl mb-1 cursor-pointer text-sm ${active?'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium':'hover:bg-gray-200 dark:hover:bg-gray-800'}`;
+      d.onclick=()=>selectChat(chat.id);
+      d.innerHTML=`<span class="truncate pr-2 flex-1"></span><span class="flex gap-1 ${active?'':'opacity-0 group-hover:opacity-100'}"><button class="ab" title="Pin">${chat.pinned?'📌':'📍'}</button><button class="ab" title="Rename">✎</button><button class="ab" title="Delete">🗑</button></span>`;
+      d.firstChild.textContent=(chat.temp?'🕶 ':'')+(chat.title||'New Chat');
+      const [p,r,x]=d.querySelectorAll('button');
+      p.onclick=e=>pinChat(chat.id,e);r.onclick=e=>renameChat(chat.id,e);x.onclick=e=>deleteChat(chat.id,e);
+      list.appendChild(d);
+    });
+  };
+  add('Pinned',items.filter(c=>c.pinned));add('Recent',items.filter(c=>!c.pinned));
+  if(!items.length)list.innerHTML='<div class="text-sm opacity-50 p-3">No chats found</div>';
 }
 
-function selectChat(id) {
-  if (state.isGenerating) return;
-  state.currentChatId = id;
-  saveState();
-  renderSidebar();
-  renderCurrentChat();
-  if (window.innerWidth < 768) toggleSidebar();
-}
-
-function deleteChat(id, event) {
-  event.stopPropagation();
-  if (state.isGenerating) return;
-  if (!confirm('Delete this chat?')) return;
-  state.chats = state.chats.filter(c => c.id !== id);
-  if (state.currentChatId === id) {
-    state.currentChatId = state.chats.length > 0 ? state.chats[0].id : null;
-    if (!state.currentChatId) createNewChat(false);
-  }
-  saveState();
-  renderSidebar();
-  renderCurrentChat();
-}
-
-// --- Rendering ---
-function renderSidebar() {
-  const list = document.getElementById('chat-history-list');
-  if (!list) return;
-  list.innerHTML = '';
-  state.chats.forEach(chat => {
-    const isActive = chat.id === state.currentChatId;
-    const div = document.createElement('div');
-    div.className = `group flex items-center justify-between p-3 rounded-xl mb-1 cursor-pointer transition-colors text-sm ${isActive ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium' : 'hover:bg-gray-200 dark:hover:bg-gray-800'}`;
-    div.onclick = () => selectChat(chat.id);
-
-    const titleSpan = document.createElement('span');
-    titleSpan.className = 'truncate pr-2 flex-1';
-    titleSpan.textContent = chat.title || 'New Chat';
-
-    const deleteBtn = document.createElement('button');
-    deleteBtn.className = `opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-gray-300 dark:hover:bg-gray-700 transition-opacity ${isActive ? 'opacity-100' : ''}`;
-    deleteBtn.innerHTML = '<svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>';
-    deleteBtn.onclick = (e) => deleteChat(chat.id, e);
-
-    div.appendChild(titleSpan);
-    div.appendChild(deleteBtn);
-    list.appendChild(div);
-  });
-}
-
-function renderCurrentChat() {
-  const container = document.getElementById('chat-container');
-  if (!container) return;
-  container.innerHTML = '';
-  const currentChat = state.chats.find(c => c.id === state.currentChatId);
-
-  if (!currentChat || currentChat.messages.length === 0) {
-    container.innerHTML = `
-      <div class="flex flex-col items-center justify-center h-full text-center opacity-70 mt-20">
-        <div class="w-16 h-16 bg-gradient-to-tr from-blue-500 to-purple-500 rounded-full flex items-center justify-center mb-6 shadow-lg">
-          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-        </div>
-        <h2 class="text-3xl font-semibold mb-2">Hello, I'm Arup AI</h2>
-        <p class="text-gray-500 dark:text-gray-400 max-w-md">How can I help you today? I can write code, answer questions, and assist with formatting.</p>
-      </div>`;
+function renderCurrentChat(){
+  const box=$('chat-container');box.innerHTML='';box.style.fontSize=state.settings.fontSize+'px';
+  const chat=cur();$('temp-badge').classList.toggle('hidden',!chat?.temp);
+  if(!chat||!chat.messages.length){
+    const hr=new Date().getHours();const g=hr<12?'Good morning':hr<18?'Good afternoon':'Good evening';
+    box.innerHTML=`<div class="flex flex-col items-center justify-center text-center mt-16" id="empty">
+      <div class="w-16 h-16 bg-gradient-to-tr from-blue-500 to-purple-500 rounded-full flex items-center justify-center mb-6 shadow-lg text-3xl text-white">⚡</div>
+      <h2 class="text-3xl font-semibold mb-2">${g}, I'm Arup AI</h2>
+      <p class="text-gray-500 dark:text-gray-400 max-w-md mb-6">How can I help you today?</p>
+      <div class="flex flex-wrap justify-center gap-2">${SUGGESTIONS.map(s=>`<button class="chip border border-gray-300 dark:border-gray-600 rounded-full px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800">${s}</button>`).join('')}</div></div>`;
+    box.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const i=$('message-input');i.value=b.textContent.slice(2).trim();i.focus();i.dispatchEvent(new Event('input'))});
     return;
   }
-
-  currentChat.messages.forEach((msg, i) => appendMessageToUI(msg.role, msg.content, false, i));
-  scrollToBottom();
+  chat.messages.forEach((m,i)=>appendMessageToUI(m.role,m.content,false,i,m));
+  scrollToBottom(true);
 }
 
-function appendMessageToUI(role, content, isStreaming = false, index = null) {
-  const container = document.getElementById('chat-container');
-  // Remove empty-state placeholder if present
-  if (container.firstElementChild && container.firstElementChild.classList.contains('items-center') && container.firstElementChild.classList.contains('flex-col')) {
-    container.innerHTML = '';
-  }
-  const wrapper = document.createElement('div');
-  wrapper.className = `group flex w-full items-center gap-2 ${role === 'user' ? 'justify-end' : 'justify-start'}`;
-  const bubble = document.createElement('div');
-
-  if (role === 'user') {
-    if (index !== null) {
-      const editBtn = document.createElement('button');
-      editBtn.title = 'Edit message';
-      editBtn.className = 'p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 opacity-60 md:opacity-0 group-hover:opacity-100 transition-opacity shrink-0';
-      editBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>';
-      editBtn.onclick = () => startEdit(index, wrapper);
-      wrapper.appendChild(editBtn);
-    }
-    bubble.className = 'max-w-[85%] md:max-w-[75%] rounded-3xl px-5 py-3.5 bg-gemini-userLight dark:bg-gemini-userDark text-gray-900 dark:text-gray-100 whitespace-pre-wrap';
-    bubble.textContent = content;
-  } else {
-    bubble.className = `max-w-[100%] md:max-w-[85%] rounded-3xl px-5 py-3.5 bg-transparent text-gray-900 dark:text-gray-100 prose prose-slate dark:prose-invert ${isStreaming ? 'cursor-blink' : ''}`;
-    bubble.innerHTML = marked.parse(content || ' ');
-  }
-
-  if (!isStreaming) {
-    const blinking = container.querySelector('.cursor-blink');
-    if (blinking) blinking.classList.remove('cursor-blink');
-  }
-
-  wrapper.appendChild(bubble);
-  container.appendChild(wrapper);
-  if (isStreaming) wrapper.id = 'active-stream';
-  return wrapper;
-}
-
-function scrollToBottom() {
-  const c = document.getElementById('chat-container');
-  c.scrollTop = c.scrollHeight;
-}
-
-// --- Input handling ---
-function setupTextareaAutoResize() {
-  const textarea = document.getElementById('message-input');
-  const btn = document.getElementById('send-btn');
-  textarea.addEventListener('input', function () {
-    this.style.height = 'auto';
-    this.style.height = Math.min(this.scrollHeight, 192) + 'px';
-    btn.disabled = this.value.trim().length === 0 || state.isGenerating;
-  });
-  textarea.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      if (!btn.disabled) document.getElementById('chat-form').dispatchEvent(new Event('submit', { cancelable: true }));
-    }
+function renderMd(el,text){el.innerHTML=DOMPurify.sanitize(marked.parse(text||' '));enhanceCode(el)}
+function enhanceCode(el){
+  el.querySelectorAll('pre').forEach(pre=>{
+    if(pre.dataset.done)return;pre.dataset.done=1;
+    const code=pre.querySelector('code');const txt=code?code.textContent:pre.textContent;
+    const lang=(code?.className.match(/language-(\w+)/)||[])[1]||'code';
+    const head=document.createElement('div');head.className='codehead';
+    head.innerHTML=`<span>${lang}</span><span></span>`;
+    const box=head.lastChild;
+    const cp=document.createElement('button');cp.textContent='Copy';cp.onclick=()=>copyText(txt);box.appendChild(cp);
+    if(/^(html|svg)$/i.test(lang)){const pv=document.createElement('button');pv.textContent='▶ Preview';pv.onclick=()=>openArtifact(txt);box.appendChild(pv)}
+    pre.parentNode.insertBefore(head,pre);
   });
 }
 
-function setupFormSubmit() {
-  document.getElementById('chat-form').addEventListener('submit', async (e) => {
+function appendMessageToUI(role,content,isStreaming=false,index=null,msg=null){
+  const box=$('chat-container');
+  if($('empty'))box.innerHTML='';
+  const wrap=document.createElement('div');
+  wrap.className=`group flex w-full items-start gap-2 ${role==='user'?'justify-end':'justify-start'}`;
+  const col=document.createElement('div');
+  col.className=role==='user'?'flex flex-col items-end max-w-[85%] md:max-w-[75%]':'flex flex-col items-start max-w-[100%] md:max-w-[88%] w-full';
+  const bubble=document.createElement('div');
+
+  if(role==='user'){
+    if(index!==null){
+      const eb=document.createElement('button');eb.title='Edit message';eb.textContent='✎';
+      eb.className='ab mt-3 md:opacity-0 group-hover:opacity-100 shrink-0';eb.onclick=()=>startEdit(index,wrap);wrap.appendChild(eb);
+    }
+    (msg?.attach||[]).length&&col.appendChild(attachChips(msg.attach,false));
+    bubble.className='rounded-3xl px-5 py-3.5 bg-gemini-userLight dark:bg-gemini-userDark text-gray-900 dark:text-gray-100 whitespace-pre-wrap break-words';
+    bubble.textContent=content;col.appendChild(bubble);
+  }else{
+    if(msg?.reasoning){const d=document.createElement('details');d.className='think';d.innerHTML='<summary class="cursor-pointer">Thought process</summary><div class="whitespace-pre-wrap mt-1"></div>';d.lastChild.textContent=msg.reasoning;col.appendChild(d)}
+    bubble.className=`rounded-3xl px-5 py-3.5 bg-transparent text-gray-900 dark:text-gray-100 prose prose-slate dark:prose-invert max-w-none w-full ${isStreaming?'cursor-blink':''}`;
+    renderMd(bubble,content);col.appendChild(bubble);
+    if(!isStreaming&&index!==null){
+      const bar=document.createElement('div');bar.className='flex gap-1 px-3';
+      const c=document.createElement('button');c.className='ab';c.textContent='⧉ Copy';c.onclick=()=>copyText(content);bar.appendChild(c);
+      if(index===cur().messages.length-1){const r=document.createElement('button');r.className='ab';r.textContent='↻ Retry';r.onclick=regenerate;bar.appendChild(r)}
+      col.appendChild(bar);
+    }
+  }
+  wrap.appendChild(col);box.appendChild(wrap);
+  if(isStreaming)wrap.id='active-stream';
+  return wrap;
+}
+
+function scrollToBottom(force){
+  const c=$('chat-container');
+  if(force||c.scrollHeight-c.scrollTop-c.clientHeight<250)c.scrollTop=c.scrollHeight;
+}
+
+// ---------- Attachments ----------
+async function handleFiles(files){
+  for(const f of files){
+    try{
+      if(f.type.startsWith('image/')){
+        if(f.size>4e6){toast(f.name+' too large (max 4MB)');continue}
+        const data=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(f)});
+        state.attach.push({name:f.name||'image.png',img:true,data});
+      }else{
+        if(f.size>2e5){toast(f.name+' too large (max 200KB text)');continue}
+        state.attach.push({name:f.name,img:false,data:await f.text()});
+      }
+    }catch(e){toast('Could not read '+f.name)}
+  }
+  renderAttach();
+}
+function attachChips(list,removable){
+  const d=document.createElement('div');d.className='flex flex-wrap gap-2 mb-1 justify-end';
+  list.forEach((a,i)=>{
+    const s=document.createElement('span');s.className='flex items-center gap-1 text-xs bg-gray-200 dark:bg-gray-700 rounded-lg px-2 py-1';
+    if(a.img){const im=document.createElement('img');im.src=a.data;im.className='w-10 h-10 object-cover rounded';s.appendChild(im)}
+    else s.append('📄 ');
+    s.append(a.name.slice(0,24));
+    if(removable){const x=document.createElement('button');x.textContent='✕';x.className='ml-1';x.onclick=()=>{state.attach.splice(i,1);renderAttach()};s.appendChild(x)}
+    d.appendChild(s);
+  });
+  return d;
+}
+function renderAttach(){
+  const p=$('attach-preview');p.innerHTML='';
+  if(state.attach.length)p.appendChild(attachChips(state.attach,true));
+  updateSend();
+}
+function updateSend(){
+  const b=$('send-btn');
+  if(state.isGenerating){b.disabled=false;b.textContent='■';b.title='Stop generating'}
+  else{b.textContent='➤';b.title='Send';b.disabled=!($('message-input').value.trim()||state.attach.length)}
+}
+
+// ---------- Input ----------
+function setupInput(){
+  const ta=$('message-input');
+  ta.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,192)+'px';updateSend()});
+  ta.addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&!e.shiftKey&&innerWidth>=768){e.preventDefault();if(!state.isGenerating&&!$('send-btn').disabled)$('chat-form').requestSubmit()}
+  });
+  $('chat-form').addEventListener('submit',e=>{
     e.preventDefault();
-    if (state.isGenerating) return;
-
-    const input = document.getElementById('message-input');
-    const content = input.value.trim();
-    if (!content) return;
-
-    if (!state.settings.apiKey) {
-      openSettings();
-      alert("Please configure your OpenRouter API Key first.");
-      return;
-    }
-
-    input.value = '';
-    input.style.height = 'auto';
-    document.getElementById('send-btn').disabled = true;
-
-    const chat = state.chats.find(c => c.id === state.currentChatId);
-
-    if (chat.messages.length === 0) {
-      chat.title = content.substring(0, 30) + (content.length > 30 ? '...' : '');
-      renderSidebar();
-    }
-
-    chat.messages.push({ role: 'user', content });
-    appendMessageToUI('user', content, false, chat.messages.length - 1);
-    scrollToBottom();
-    saveState();
-
-    await generateReply(chat);
+    if(state.isGenerating){state.controller?.abort();return}
+    const content=ta.value.trim();if(!content&&!state.attach.length)return;
+    if(!state.settings.apiKey){openSettings();toast('Please add your OpenRouter API key');return}
+    const chat=cur();
+    if(!chat.messages.length)chat.title=(content||state.attach[0].name).substring(0,30)+(content.length>30?'...':'');
+    const m={role:'user',content,attach:state.attach};
+    chat.messages.push(m);state.attach=[];renderAttach();
+    ta.value='';ta.style.height='auto';
+    renderSidebar();renderCurrentChat();saveState();generateReply(chat);
   });
 }
 
-// --- Reply generation (submit aur edit dono use karte hain) ---
-async function generateReply(chat) {
-  state.isGenerating = true;
-  document.getElementById('send-btn').disabled = true;
+// ---------- API ----------
+function toApi(m){
+  let text=m.content||'';
+  (m.attach||[]).filter(a=>!a.img).forEach(a=>text+=`\n\n[File: ${a.name}]\n${a.data}`);
+  const imgs=(m.attach||[]).filter(a=>a.img);
+  if(!imgs.length)return{role:m.role,content:text};
+  return{role:m.role,content:[{type:'text',text:text||'Describe this image.'},...imgs.map(a=>({type:'image_url',image_url:{url:a.data}}))]};
+}
 
-  const streamWrapper = appendMessageToUI('assistant', '', true);
-  const streamBubble = streamWrapper.querySelector('.prose');
-  scrollToBottom();
-
-  let apiMessages = [];
-  if (state.settings.systemPrompt) apiMessages.push({ role: 'system', content: state.settings.systemPrompt });
-  apiMessages = apiMessages.concat(chat.messages.slice(-10));
-
-  try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${state.settings.apiKey}`,
-        'HTTP-Referer': window.location.href,
-        'X-Title': 'Arup AI Chat'
-      },
-      body: JSON.stringify({
-        model: state.settings.model || 'deepseek/deepseek-r1:free',
-        messages: apiMessages,
-        stream: true
-      })
+async function generateReply(chat){
+  state.isGenerating=true;state.controller=new AbortController();updateSend();
+  const wrap=appendMessageToUI('assistant','',true);
+  const bubble=wrap.querySelector('.prose');
+  let thinkEl=null;
+  scrollToBottom(true);
+  const sys=[state.settings.systemPrompt,STYLES[state.settings.style]].filter(Boolean).join('\n\n');
+  const msgs=(sys?[{role:'system',content:sys}]:[]).concat(chat.messages.slice(-20).map(toApi));
+  let answer='',reasoning='',buffer='';
+  try{
+    const body={model:state.settings.model||DEF_MODEL,messages:msgs,stream:true,temperature:Number(state.settings.temperature)};
+    if(+state.settings.maxTokens>0)body.max_tokens=+state.settings.maxTokens;
+    const res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
+      method:'POST',signal:state.controller.signal,
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${state.settings.apiKey}`,'HTTP-Referer':location.href,'X-Title':'Arup AI Chat'},
+      body:JSON.stringify(body)
     });
-
-    if (!response.ok) {
-      const err = await response.json();
-      throw new Error(err.error?.message || `HTTP ${response.status}`);
-    }
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder('utf-8');
-    let assistantResponse = '';
-    let buffer = '';
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop(); // incomplete line next chunk ke saath judega
-
-      for (const raw of lines) {
-        const line = raw.trim();
-        if (!line || line === 'data: [DONE]') continue;
-        if (line.startsWith('data: ')) {
-          try {
-            const data = JSON.parse(line.substring(6));
-            assistantResponse += data.choices[0]?.delta?.content || '';
-            streamBubble.innerHTML = marked.parse(assistantResponse);
-            scrollToBottom();
-          } catch (e) {}
-        }
+    if(!res.ok){let e={};try{e=await res.json()}catch(_){}throw new Error(e.error?.message||`HTTP ${res.status}`)}
+    const reader=res.body.getReader(),dec=new TextDecoder();
+    while(true){
+      const{done,value}=await reader.read();if(done)break;
+      buffer+=dec.decode(value,{stream:true});
+      const lines=buffer.split('\n');buffer=lines.pop();
+      for(const raw of lines){
+        const l=raw.trim();if(!l.startsWith('data: ')||l==='data: [DONE]')continue;
+        try{
+          const d=JSON.parse(l.slice(6)).choices?.[0]?.delta||{};
+          const r=d.reasoning||d.reasoning_content||'';
+          if(r){
+            reasoning+=r;
+            if(!thinkEl){thinkEl=document.createElement('details');thinkEl.className='think';thinkEl.open=true;thinkEl.innerHTML='<summary class="cursor-pointer">Thinking...</summary><div class="whitespace-pre-wrap mt-1"></div>';bubble.parentNode.insertBefore(thinkEl,bubble)}
+            thinkEl.lastChild.textContent=reasoning;
+          }
+          if(d.content){answer+=d.content;renderMd(bubble,answer)}
+          scrollToBottom();
+        }catch(_){}
       }
     }
-
-    streamBubble.classList.remove('cursor-blink');
-    streamWrapper.removeAttribute('id');
-    chat.messages.push({ role: 'assistant', content: assistantResponse });
-  } catch (error) {
-    streamBubble.classList.remove('cursor-blink');
-    streamBubble.innerHTML = `<span class="text-red-500">Error: ${error.message}</span>`;
-    chat.messages.push({ role: 'assistant', content: `Error: ${error.message}` });
-  } finally {
-    state.isGenerating = false;
-    const input = document.getElementById('message-input');
-    document.getElementById('send-btn').disabled = input.value.trim().length === 0;
-    saveState();
-    if (window.innerWidth >= 768) input.focus();
+    chat.messages.push({role:'assistant',content:answer,reasoning:reasoning||undefined});
+  }catch(err){
+    if(err.name==='AbortError'){
+      if(answer||reasoning)chat.messages.push({role:'assistant',content:answer+(answer?'\n\n':'')+'_(stopped)_',reasoning:reasoning||undefined});
+      else chat.messages.push({role:'assistant',content:'_(stopped)_'});
+    }else chat.messages.push({role:'assistant',content:`**Error:** ${err.message}`});
+  }finally{
+    state.isGenerating=false;state.controller=null;saveState();
+    if(chat.id===state.currentChatId)renderCurrentChat();
+    updateSend();if(innerWidth>=768)$('message-input').focus();
   }
 }
 
-// --- Edit feature ---
-function startEdit(index, wrapper) {
-  if (state.isGenerating) return;
-  const chat = state.chats.find(c => c.id === state.currentChatId);
-  const original = chat.messages[index].content;
-
-  wrapper.innerHTML = '';
-  wrapper.className = 'flex w-full justify-end';
-
-  const box = document.createElement('div');
-  box.className = 'w-full md:w-3/4 bg-gemini-userLight dark:bg-gemini-userDark rounded-3xl p-3 border border-blue-500';
-
-  const ta = document.createElement('textarea');
-  ta.value = original;
-  ta.rows = 3;
-  ta.className = 'w-full bg-transparent border-0 focus:ring-0 focus:outline-none resize-none px-2 py-1 text-base text-gray-900 dark:text-gray-100';
-
-  const actions = document.createElement('div');
-  actions.className = 'flex justify-end gap-2 mt-2';
-
-  const cancel = document.createElement('button');
-  cancel.textContent = 'Cancel';
-  cancel.className = 'px-4 py-1.5 rounded-full text-sm hover:bg-gray-300 dark:hover:bg-gray-700';
-  cancel.onclick = () => renderCurrentChat();
-
-  const save = document.createElement('button');
-  save.textContent = 'Save & Submit';
-  save.className = 'px-4 py-1.5 rounded-full text-sm bg-blue-600 hover:bg-blue-700 text-white';
-  save.onclick = () => saveEdit(index, ta.value);
-
-  actions.append(cancel, save);
-  box.append(ta, actions);
-  wrapper.appendChild(box);
-
-  ta.style.height = ta.scrollHeight + 'px';
-  ta.focus();
-  ta.setSelectionRange(ta.value.length, ta.value.length);
+function regenerate(){
+  if(state.isGenerating)return;
+  const chat=cur();if(!chat||chat.messages.at(-1)?.role!=='assistant')return;
+  if(!state.settings.apiKey){openSettings();return}
+  chat.messages.pop();saveState();renderCurrentChat();generateReply(chat);
 }
 
-function saveEdit(index, newText) {
-  newText = newText.trim();
-  if (!newText || state.isGenerating) return;
-  if (!state.settings.apiKey) { openSettings(); return; }
-
-  const chat = state.chats.find(c => c.id === state.currentChatId);
-
-  // Is message ke baad ki saari history hata do, edited message daalo
-  chat.messages = chat.messages.slice(0, index);
-  chat.messages.push({ role: 'user', content: newText });
-
-  if (index === 0) {
-    chat.title = newText.substring(0, 30) + (newText.length > 30 ? '...' : '');
-    renderSidebar();
-  }
-
-  saveState();
-  renderCurrentChat();
-  generateReply(chat);
+// ---------- Edit ----------
+function startEdit(index,wrap){
+  if(state.isGenerating)return;
+  const chat=cur();wrap.innerHTML='';wrap.className='flex w-full justify-end';
+  const box=document.createElement('div');
+  box.className='w-full md:w-3/4 bg-gemini-userLight dark:bg-gemini-userDark rounded-3xl p-3 border border-blue-500';
+  const ta=document.createElement('textarea');ta.value=chat.messages[index].content;ta.rows=3;
+  ta.className='w-full bg-transparent border-0 focus:ring-0 focus:outline-none resize-none px-2 py-1 text-base';
+  const act=document.createElement('div');act.className='flex justify-end gap-2 mt-2';
+  const cancel=document.createElement('button');cancel.textContent='Cancel';cancel.className='px-4 py-1.5 rounded-full text-sm hover:bg-gray-300 dark:hover:bg-gray-700';cancel.onclick=renderCurrentChat;
+  const save=document.createElement('button');save.textContent='Save & Submit';save.className='px-4 py-1.5 rounded-full text-sm bg-blue-600 hover:bg-blue-700 text-white';save.onclick=()=>saveEdit(index,ta.value);
+  act.append(cancel,save);box.append(ta,act);wrap.appendChild(box);
+  ta.style.height=ta.scrollHeight+'px';ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);
+}
+function saveEdit(index,text){
+  text=text.trim();if(!text||state.isGenerating)return;
+  if(!state.settings.apiKey){openSettings();return}
+  const chat=cur();const old=chat.messages[index];
+  chat.messages=chat.messages.slice(0,index);
+  chat.messages.push({role:'user',content:text,attach:old.attach||[]});
+  if(index===0){chat.title=text.substring(0,30)+(text.length>30?'...':'');renderSidebar()}
+  saveState();renderCurrentChat();generateReply(chat);
 }
 
-// --- Settings ---
-function openSettings() {
-  document.getElementById('setting-api-key').value = state.settings.apiKey;
-  document.getElementById('setting-model').value = state.settings.model;
-  document.getElementById('setting-system').value = state.settings.systemPrompt;
-  document.getElementById('settings-modal').classList.remove('hidden');
+// ---------- Artifact preview ----------
+function openArtifact(code){
+  artifactCode=code;
+  $('artifact-frame').srcdoc=/<html|<!doctype/i.test(code)||/^\s*<svg/i.test(code)?code:`<!DOCTYPE html><html><body>${code}</body></html>`;
+  const a=$('artifact');a.classList.remove('hidden');a.classList.add('flex');
 }
-function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
-function saveSettings() {
-  state.settings.apiKey = document.getElementById('setting-api-key').value.trim();
-  const model = document.getElementById('setting-model').value.trim();
-  state.settings.model = model ? model : 'deepseek/deepseek-r1:free';
-  state.settings.systemPrompt = document.getElementById('setting-system').value.trim();
-  saveState();
-  closeSettings();
-}
+function closeArtifact(){const a=$('artifact');a.classList.add('hidden');a.classList.remove('flex');$('artifact-frame').srcdoc=''}
 
-// --- UI toggles ---
-function toggleSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebar-overlay');
-  if (sidebar.classList.contains('-translate-x-full')) {
-    sidebar.classList.remove('-translate-x-full');
-    overlay.classList.remove('hidden');
-  } else {
-    sidebar.classList.add('-translate-x-full');
-    overlay.classList.add('hidden');
-  }
+// ---------- Settings & UI ----------
+function openSettings(){
+  const s=state.settings;
+  $('s-key').value=s.apiKey;$('s-model').value=s.model;$('s-sys').value=s.systemPrompt;$('s-style').value=s.style;
+  $('s-temp').value=s.temperature;$('s-temp-v').textContent=s.temperature;$('s-max').value=s.maxTokens;
+  $('s-theme').value=s.theme;$('s-font').value=s.fontSize;
+  $('settings-modal').classList.remove('hidden');
 }
-
-function applyTheme() {
-  const html = document.documentElement;
-  const icon = document.getElementById('theme-icon');
-  if (state.settings.theme === 'dark') {
-    html.classList.add('dark');
-    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>';
-  } else {
-    html.classList.remove('dark');
-    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>';
-  }
+function closeSettings(){$('settings-modal').classList.add('hidden')}
+function saveSettings(){
+  const s=state.settings;
+  s.apiKey=$('s-key').value.trim();s.model=$('s-model').value.trim()||DEF_MODEL;s.systemPrompt=$('s-sys').value.trim();
+  s.style=$('s-style').value;s.temperature=+$('s-temp').value;s.maxTokens=+$('s-max').value||0;
+  s.theme=$('s-theme').value;s.fontSize=+$('s-font').value;
+  saveState();applyTheme();$('chat-container').style.fontSize=s.fontSize+'px';closeSettings();toast('Settings saved');
 }
-
-function toggleTheme() {
-  state.settings.theme = state.settings.theme === 'dark' ? 'light' : 'dark';
-  saveState();
-  applyTheme();
+function toggleSidebar(){
+  const sb=$('sidebar'),ov=$('sidebar-overlay');
+  const closed=sb.classList.contains('-translate-x-full');
+  sb.classList.toggle('-translate-x-full',!closed);ov.classList.toggle('hidden',!closed);
+}
+function applyTheme(){
+  const t=state.settings.theme;
+  const dark=t==='dark'||(t==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.classList.toggle('dark',dark);
+  $('theme-btn').textContent=dark?'🌙':'☀';
+}
+function toggleTheme(){
+  const dark=document.documentElement.classList.contains('dark');
+  state.settings.theme=dark?'light':'dark';saveState();applyTheme();
 }
 </script>
 </body>
